@@ -1,22 +1,24 @@
 'use client'
-export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 export default function InvoiceDetail() {
-  const params = useParams()
+  const pathname = usePathname()
   const router = useRouter()
   const [invoice, setInvoice] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchInvoice() {
-      if (!params.id) return
+      // 直接從網址拆解出 id
+      const id = pathname.split('/').pop()
+      if (!id) return
+
       const { data, error } = await supabase
         .from('invoices')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', id)
         .single()
       
       if (data) setInvoice(data)
@@ -24,7 +26,7 @@ export default function InvoiceDetail() {
       setLoading(false)
     }
     fetchInvoice()
-  }, [params.id])
+  }, [pathname])
 
   if (loading) return <div className="p-8 text-center">載入中...</div>
   if (!invoice) return <div className="p-8 text-center text-red-500">搵唔到呢張發票。</div>
