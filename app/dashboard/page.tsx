@@ -109,7 +109,7 @@ export default function Dashboard() {
             {invoices.map((inv) => (
               <div 
                 key={inv.id} 
-                onClick={() => router.push(`/invoices/${inv.id}`)}
+               onClick={() => router.push(`/invoices/view?id=${inv.id}`)}
                 className="p-4 flex justify-between items-center hover:bg-slate-50 transition cursor-pointer"
               >
                 <div>
