@@ -1,22 +1,21 @@
 'use client'
-export function generateStaticParams() {
-  return []
-}
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function InvoiceDetail() {
-  const pathname = usePathname()
+function InvoiceContent() {
+  const searchParams = useSearchParams()
   const router = useRouter()
   const [invoice, setInvoice] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchInvoice() {
-      // 直接從網址拆解出 id
-      const id = pathname.split('/').pop()
-      if (!id) return
+      const id = searchParams.get('id')
+      if (!id) {
+        setLoading(false)
+        return
+      }
 
       const { data, error } = await supabase
         .from('invoices')
@@ -29,7 +28,7 @@ export default function InvoiceDetail() {
       setLoading(false)
     }
     fetchInvoice()
-  }, [pathname])
+  }, [searchParams])
 
   if (loading) return <div className="p-8 text-center">載入中...</div>
   if (!invoice) return <div className="p-8 text-center text-red-500">搵唔到呢張發票。</div>
@@ -101,5 +100,13 @@ export default function InvoiceDetail() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function InvoiceDetail() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">載入中...</div>}>
+      <InvoiceContent />
+    </Suspense>
   )
 }
